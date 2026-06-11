@@ -1,0 +1,1709 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lunar Studio | Artist Portfolio</title>
+    <style>
+        /* --- RESET & VARIABLES --- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --bg-dark: #060608;
+            --bg-card: rgba(17, 17, 21, 0.6);
+            --border-color: rgba(255, 255, 255, 0.05);
+            --aqua: #00e5ff;
+            --neon-green: #39ff14;
+            --text-light: #ffffff;
+            --text-muted: #8a8a93;
+            --dragon-glow: #00e5ff;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+            line-height: 1.6;
+            overflow-x: hidden;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        /* --- SMOOTH 3D SNAKE DRAGON TRAIL WITH LONG TAIL --- */
+        .dragon-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 99999;
+            perspective: 1000px;
+        }
+
+        .dragon-segment {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--aqua), #0044ff);
+            box-shadow: 0 0 12px var(--dragon-glow);
+            will-change: transform;
+            transform-style: preserve-3d;
+            transition: background 0.2s ease;
+        }
+
+        .dragon-segment.dragon-head {
+            width: 26px;
+            height: 26px;
+            background: linear-gradient(135deg, #ffffff, var(--aqua));
+            box-shadow: 0 0 25px #ffffff, 0 0 15px var(--aqua);
+        }
+        
+        .dragon-segment.dragon-head::before {
+            content: '▲';
+            position: absolute;
+            top: -8px;
+            left: 4px;
+            font-size: 10px;
+            color: var(--aqua);
+            text-shadow: 0 0 5px var(--aqua);
+        }
+
+        .dragon-segment::after {
+            content: '';
+            position: absolute;
+            top: -4px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 4px;
+            height: 4px;
+            background: var(--neon-green);
+            clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+        }
+
+        /* --- GLOBAL SIGNATURE BRANDING --- */
+        .dev-signature {
+            position: fixed;
+            bottom: 1.5rem;
+            right: 2rem;
+            z-index: 999;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--text-muted);
+            background: rgba(6, 6, 8, 0.7);
+            padding: 0.4rem 0.8rem;
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
+            backdrop-filter: blur(5px);
+            pointer-events: auto;
+            animation: pulseGlow 3s infinite alternate;
+        }
+
+        .dev-signature span {
+            color: var(--aqua);
+            font-weight: 700;
+        }
+
+        /* --- NAVIGATION / TASK BAR --- */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.25rem 2rem;
+            z-index: 100;
+            background: rgba(6, 6, 8, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-color);
+            animation: slideDown 0.6s ease-out;
+        }
+
+        .nav-logo {
+            font-size: 1.3rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-decoration: none;
+            color: var(--text-light);
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+        
+        .nav-logo:hover {
+            transform: scale(1.05);
+        }
+
+        .nav-logo span {
+            color: var(--aqua);
+            text-shadow: 0 0 10px rgba(0, 229, 255, 0.4);
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: color 0.3s ease, text-shadow 0.3s ease, transform 0.3s ease;
+            display: inline-block;
+        }
+
+        .nav-links a:hover, .nav-links a.active {
+            color: var(--aqua);
+            text-shadow: 0 0 8px rgba(0, 229, 255, 0.6);
+            transform: translateY(-2px);
+        }
+
+        /* --- PAGE MANAGEMENT & GLOBAL ANIMATIONS --- */
+        .page-view {
+            display: none;
+            min-height: 100vh;
+            position: relative;
+            z-index: 2;
+        }
+
+        .page-view.active-page {
+            display: block;
+            animation: fadeInPage 0.5s ease-out forwards;
+        }
+
+        /* --- HOME STYLE WITH CINEMATIC MOON --- */
+        .hero-section {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .moon-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 480px;
+            height: 480px;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .cinematic-moon {
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, #80f2ff 0%, rgba(0, 229, 255, 0.18) 45%, transparent 70%);
+            border-radius: 50%;
+            filter: blur(35px);
+            opacity: 0.5;
+            animation: moonGlowPulse 7s ease-in-out infinite alternate;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .welcome-text {
+            font-size: 1.2rem;
+            color: var(--aqua);
+            text-transform: uppercase;
+            letter-spacing: 6px;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            animation: fadeInUp 0.8s ease-out 0.2s both;
+        }
+
+        .main-title {
+            font-size: clamp(3.5rem, 8vw, 6.5rem);
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            line-height: 1.1;
+            background: linear-gradient(180deg, #ffffff 40%, #80f2ff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 45px rgba(0, 229, 255, 0.35));
+            margin-bottom: 2rem;
+            animation: fadeInUp 0.8s ease-out 0.4s both;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 1.5rem;
+            animation: fadeInUp 0.8s ease-out 0.6s both;
+        }
+
+        .hero-btn {
+            padding: 0.8rem 2rem;
+            font-size: 0.9rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+            text-decoration: none;
+        }
+
+        .hero-btn-primary {
+            background: var(--aqua);
+            color: var(--bg-dark);
+            border: 1px solid var(--aqua);
+        }
+
+        .hero-btn-primary:hover {
+            transform: scale(1.05) translateY(-2px);
+            box-shadow: 0 0 25px rgba(0, 229, 255, 0.6);
+        }
+
+        .hero-btn-secondary {
+            background: transparent;
+            color: #fff;
+            border: 1px solid var(--border-color);
+        }
+
+        .hero-btn-secondary:hover {
+            border-color: var(--aqua);
+            color: var(--aqua);
+            transform: scale(1.05) translateY(-2px);
+            box-shadow: 0 0 15px rgba(0, 229, 255, 0.2);
+        }
+
+        /* --- ABOUT SECTION --- */
+        .about-section {
+            padding: 8rem 2rem 6rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .page-header h2 {
+            font-size: 2.2rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin-bottom: 0.75rem;
+        }
+
+        .page-header h2 span {
+            color: var(--aqua);
+            text-shadow: 0 0 15px rgba(0, 229, 255, 0.3);
+        }
+
+        .page-header p {
+            color: var(--text-muted);
+            font-size: 1rem;
+            letter-spacing: 1px;
+        }
+
+        .about-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+        }
+
+        .about-text h3 {
+            font-size: 1.6rem;
+            color: var(--aqua);
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .about-text p {
+            color: var(--text-muted);
+            margin-bottom: 1.5rem;
+            font-size: 1.05rem;
+        }
+
+        .about-showcase {
+            background: rgba(17, 17, 21, 0.4);
+            border: 1px solid var(--border-color);
+            border-top: 2px solid var(--aqua);
+            border-radius: 8px;
+            padding: 3rem;
+            text-align: center;
+            backdrop-filter: blur(8px);
+            transition: transform 0.4s ease, box-shadow 0.4s ease;
+        }
+
+        .about-showcase:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 229, 255, 0.15);
+        }
+
+        .about-showcase h4 {
+            font-size: 3.5rem;
+            color: #fff;
+            font-weight: 800;
+        }
+
+        /* --- MEMBERS & LEADS AREA --- */
+        .inner-page-padding {
+            padding: 8rem 2rem 4rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2.5rem;
+            margin-bottom: 4rem;
+        }
+
+        .member-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            overflow: hidden;
+            position: relative;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            transition: border-color 0.3s ease, transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.4s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .member-card:hover, .folder-card:hover, .channel-card:hover {
+            border-color: var(--aqua) !important;
+            box-shadow: 0 0 15px rgba(0, 229, 255, 0.2), 0 12px 30px rgba(0, 0, 0, 0.6);
+            transform: translateY(-6px) scale(1.01);
+        }
+
+        .member-img-banner {
+            width: 100%;
+            height: 240px;
+            object-fit: cover;
+            object-position: center;
+            border-bottom: 1px solid var(--border-color);
+            background-color: rgba(0, 0, 0, 0.2);
+            transition: transform 0.5s ease;
+        }
+        
+        .member-card:hover .member-img-banner {
+            transform: scale(1.03);
+        }
+
+        .member-info {
+            padding: 1.75rem;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .member-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+            gap: 0.5rem;
+        }
+
+        .member-name {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #fff;
+            word-break: break-word;
+        }
+
+        .member-role {
+            color: var(--aqua);
+            font-size: 0.65rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            background: rgba(0, 229, 255, 0.06);
+            padding: 0.2rem 0.6rem;
+            border-radius: 4px;
+            border: 1px solid rgba(0, 229, 255, 0.15);
+            white-space: nowrap;
+        }
+
+        .member-stats-line {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            border-top: 1px solid rgba(255, 255, 255, 0.03);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+            padding: 0.75rem 0;
+            margin-bottom: 1rem;
+            font-size: 0.8rem;
+        }
+
+        .stat-box span {
+            display: block;
+            color: var(--text-muted);
+            font-size: 0.7()rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-box p {
+            color: #fff;
+            font-weight: 600;
+        }
+
+        .member-bio {
+            color: #a0a0a8;
+            font-size: 0.85rem;
+            margin-bottom: 0.5rem;
+            min-height: 65px;
+        }
+
+        /* --- ACCORDION FOLDERS SYSTEM --- */
+        .folder-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            margin-bottom: 6rem;
+        }
+
+        .folder-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 2rem;
+            position: relative;
+            overflow: hidden;
+            transition: border-color 0.3s ease, box-shadow 0.4s ease, transform 0.3s ease;
+        }
+        
+        .folder-card:hover:not(.folder-open) {
+            transform: translateY(-2px);
+        }
+
+        .folder-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 40px;
+            height: 6px;
+            background: var(--aqua);
+            border-radius: 0 0 4px 0;
+        }
+
+        .folder-header-layout {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .folder-meta-left {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .folder-icon {
+            font-size: 2.5rem;
+            color: var(--aqua);
+            line-height: 1;
+            filter: drop-shadow(0 0 10px rgba(0, 229, 255, 0.2));
+            transition: transform 0.4s ease;
+        }
+
+        .folder-info h3 {
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 0.2rem;
+            letter-spacing: 0.5px;
+        }
+
+        .folder-info p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .folder-toggle-indicator {
+            font-size: 1.4rem;
+            color: var(--text-muted);
+            transition: transform 0.3s ease, color 0.3s ease;
+        }
+
+        .folder-content-wrapper {
+            display: grid;
+            grid-template-rows: 0fr;
+            transition: grid-template-rows 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .folder-content-inner {
+            overflow: hidden;
+        }
+
+        .folder-card.folder-open {
+            border-color: rgba(0, 229, 255, 0.5) !important;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.6);
+        }
+
+        .folder-card.folder-open .folder-toggle-indicator {
+            transform: rotate(180deg);
+            color: var(--aqua);
+        }
+
+        .folder-card.folder-open .folder-content-wrapper {
+            grid-template-rows: 1fr;
+        }
+
+        .folder-images-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 14px;
+            width: 100%;
+            margin-top: 2rem;
+            padding-top: 1.25rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.04);
+        }
+
+        .image-space {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px dashed rgba(255, 255, 255, 0.08);
+            border-radius: 6px;
+            aspect-ratio: 4 / 3;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .image-space img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.4s ease;
+        }
+
+        .image-space:hover img {
+            transform: scale(1.08);
+        }
+
+        .image-space:hover {
+            border-color: rgba(0, 229, 255, 0.5);
+            transform: scale(1.04);
+            box-shadow: 0 5px 15px rgba(0, 229, 255, 0.25);
+        }
+
+        /* --- REVIEWS SYSTEM --- */
+        .reviews-section {
+            margin-bottom: 4rem;
+            background: rgba(17, 17, 21, 0.4);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 2.5rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .reviews-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .review-card {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1.5rem;
+            transition: transform 0.3s ease;
+        }
+        
+        .review-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .review-user {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }
+
+        .review-name {
+            font-weight: 700;
+            color: #fff;
+            font-size: 1rem;
+        }
+
+        .review-stars {
+            color: var(--aqua);
+            font-size: 0.9rem;
+        }
+
+        .review-text {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            font-style: italic;
+        }
+
+        .add-review-box {
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            padding-top: 2rem;
+        }
+
+        .add-review-box h4 {
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 1.25rem;
+            color: #fff;
+        }
+
+        .review-inputs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .review-inputs input, .review-inputs select, .add-review-box textarea {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            color: #fff;
+            outline: none;
+            font-size: 0.85rem;
+            transition: border-color 0.3s;
+        }
+
+        .review-inputs select option {
+            background: #111115;
+            color: #fff;
+        }
+
+        .review-inputs input:focus, .review-inputs select:focus, .add-review-box textarea:focus {
+            border-color: var(--aqua);
+        }
+
+        .review-btn {
+            background: transparent;
+            color: var(--aqua);
+            border: 1px solid var(--aqua);
+            padding: 0.7rem 1.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.8rem;
+            transition: all 0.3s;
+        }
+
+        .review-btn:hover {
+            background: var(--aqua);
+            color: var(--bg-dark);
+            box-shadow: 0 0 10px rgba(0, 229, 255, 0.3);
+            transform: translateY(-1px);
+        }
+
+        /* --- LIGHTBOX MODAL PREVIEW OVERLAY --- */
+        .lightbox-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(6, 6, 8, 0.93);
+            backdrop-filter: blur(15px);
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s ease;
+        }
+
+        .lightbox-modal.modal-active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .lightbox-card {
+            background: #111115;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 2rem;
+            max-width: 800px;
+            width: 90%;
+            text-align: center;
+            position: relative;
+            transform: scale(0.9);
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 25px 50px rgba(0,0,0,0.8);
+        }
+
+        .lightbox-modal.modal-active .lightbox-card {
+            transform: scale(1);
+        }
+
+        .lightbox-close {
+            position: absolute;
+            top: 1rem;
+            right: 1.25rem;
+            font-size: 1.8rem;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: color 0.2s;
+            z-index: 10;
+        }
+
+        .lightbox-close:hover {
+            color: var(--aqua);
+        }
+
+        .lightbox-preview-box {
+            width: 100%;
+            max-height: 70vh;
+            background: rgba(0,0,0,0.5);
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            margin-top: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .lightbox-preview-box img {
+            max-width: 100%;
+            max-height: 65vh;
+            object-fit: contain;
+        }
+
+        /* --- TRUST AREA --- */
+        .trust-section {
+            background: rgba(10, 10, 14, 0.5);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 3rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .trust-title {
+            font-size: 1.25rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 2rem;
+            text-align: center;
+            color: #fff;
+        }
+
+        .trust-title span {
+            color: var(--aqua);
+        }
+
+        .metrics-bar {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+            text-align: center;
+            padding-bottom: 2.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            margin-bottom: 2.5rem;
+        }
+
+        .metric-item h5 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--aqua);
+            line-height: 1;
+        }
+
+        .metric-item p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 0.5rem;
+        }
+
+        .channels-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .channel-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border-color);
+            padding: 1.25rem;
+            border-radius: 8px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .channel-card h6 {
+            color: #fff;
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .channel-card p {
+            color: var(--aqua);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* --- CONTACT PAGE --- */
+        .contact-layout-wrapper {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            align-items: start;
+        }
+
+        .contact-form-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .contact-form {
+            background: var(--bg-card);
+            padding: 2.5rem;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            backdrop-filter: blur(10px);
+        }
+
+        .direct-phone-box {
+            background: rgba(17, 17, 21, 0.4);
+            border: 1px solid var(--border-color);
+            border-left: 3px solid var(--aqua);
+            padding: 1.25rem 2rem;
+            border-radius: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .direct-phone-box span {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+        }
+
+        .direct-phone-box a {
+            color: #fff;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 1.1rem;
+            letter-spacing: 1px;
+            transition: color 0.3s;
+        }
+
+        .direct-phone-box a:hover {
+            color: var(--aqua);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.5rem;
+            color: var(--text-muted);
+        }
+
+        .form-group input, .form-group textarea {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            color: #fff;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus, .form-group textarea:focus {
+            border-color: var(--aqua);
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 0.75rem;
+            background: var(--aqua);
+            color: var(--bg-dark);
+            border: none;
+            border-radius: 4px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: opacity 0.3s, transform 0.2s;
+        }
+
+        .submit-btn:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+
+        .contact-panels-container {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .discord-connect-panel {
+            background: linear-gradient(135deg, #1a1c23 0%, #111217 100%);
+            border: 1px solid rgba(88, 101, 242, 0.3);
+            border-radius: 8px;
+            padding: 3rem 2rem;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            transition: transform 0.3s ease;
+        }
+        
+        .discord-connect-panel:hover {
+            transform: translateY(-3px);
+        }
+
+        .discord-icon-title {
+            color: #5865F2;
+            font-size: 2rem;
+            font-weight: 800;
+            letter-spacing: 1px;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+        }
+
+        .discord-connect-panel p {
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+            font-size: 0.95rem;
+        }
+
+        .discord-btn {
+            display: inline-block;
+            background: #5865F2;
+            color: #fff;
+            text-decoration: none;
+            padding: 0.8rem 2rem;
+            border-radius: 4px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.85rem;
+            transition: background 0.3s, box-shadow 0.3s, transform 0.2s;
+        }
+
+        .discord-btn:hover {
+            background: #4752C4;
+            box-shadow: 0 0 20px rgba(88, 101, 242, 0.4);
+            transform: translateY(-2px);
+        }
+        
+        .insta-btn {
+            display: inline-block;
+            background: #dc2743;
+            color: #fff;
+            text-decoration: none;
+            padding: 0.8rem 2rem;
+            border-radius: 4px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.85rem;
+            transition: background 0.3s, box-shadow 0.3s, transform 0.2s;
+        }
+        
+        .insta-btn:hover {
+            background: #b81e35;
+            box-shadow: 0 0 20px rgba(220, 39, 67, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .whatsapp-btn {
+            display: inline-block;
+            background: #25D366;
+            color: #fff;
+            text-decoration: none;
+            padding: 0.8rem 2rem;
+            border-radius: 4px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.85rem;
+            transition: background 0.3s, box-shadow 0.3s, transform 0.2s;
+        }
+
+        .whatsapp-btn:hover {
+            background: #20ba5a;
+            box-shadow: 0 0 20px rgba(37, 211, 102, 0.4);
+            transform: translateY(-2px);
+        }
+
+        footer {
+            text-align: center;
+            padding: 4rem 1rem 2rem;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+            border-top: 1px solid var(--border-color);
+            width: 100%;
+        }
+
+        /* --- ANIMATION KEYFRAMES --- */
+        @keyframes moonGlowPulse {
+            0% { transform: scale(0.92); opacity: 0.4; filter: blur(45px); }
+            100% { transform: scale(1.08); opacity: 0.6; filter: blur(30px); }
+        }
+
+        @keyframes fadeInPage {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideDown {
+            from { transform: translateY(-100%); }
+            to { transform: translateY(0); }
+        }
+
+        @keyframes pulseGlow {
+            0% { box-shadow: 0 0 5px rgba(0, 229, 255, 0.1); border-color: var(--border-color); }
+            100% { box-shadow: 0 0 15px rgba(0, 229, 255, 0.3); border-color: rgba(0, 229, 255, 0.3); }
+        }
+
+        @media (max-width: 900px) {
+            .contact-layout-wrapper { grid-template-columns: 1fr; }
+            .about-grid { grid-template-columns: 1fr; gap: 2rem; }
+            .metrics-bar { grid-template-columns: 1fr; gap: 1.5rem; }
+            .review-inputs { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="dragon-container" id="dragon-container"></div>
+
+    <div class="dev-signature">Developed by <span>Kaatil</span></div>
+
+    <nav class="navbar">
+        <a onclick="switchPage('home-about-view', true)" class="nav-logo">Lunar<span>Studio</span></a>
+        <ul class="nav-links">
+            <li><a id="link-home" onclick="switchPage('home-about-view', true)" class="active">Home</a></li>
+            <li><a id="link-about" onclick="scrollToAbout()">About</a></li>
+            <li><a id="link-members" onclick="switchPage('members-page')">Members</a></li>
+            <li><a id="link-leads" onclick="switchPage('leads-page')">Leads</a></li>
+            <li><a id="link-work" onclick="switchPage('work-page')">Work</a></li>
+            <li><a id="link-contact" onclick="switchPage('contact-page')">Contact</a></li>
+        </ul>
+    </nav>
+
+    <div id="home-about-view" class="page-view active-page">
+        <section class="hero-section">
+            <div class="moon-container">
+                <div class="cinematic-moon"></div>
+            </div>
+            <div class="hero-content">
+                <p class="welcome-text">Welcome to</p>
+                <h1 class="main-title">Lunar Studio</h1>
+                <div class="hero-buttons">
+                    <a onclick="switchPage('work-page')" class="hero-btn hero-btn-primary">Work</a>
+                    <a onclick="switchPage('contact-page')" class="hero-btn hero-btn-secondary">Hire Us</a>
+                </div>
+            </div>
+        </section>
+
+        <section id="about-section" class="about-section">
+            <div class="page-header">
+                <h2>About <span>Lunar Studio</span></h2>
+                <p>Pushing artistic concepts deep into the digital dark mode ecosystem.</p>
+            </div>
+            <div class="about-grid">
+                <div class="about-text">
+                    <h3>Our Vision</h3>
+                    <p>We are a global collective of designers, technologists, and digital fine artists. Operating at the intersection of dark atmospheric styling and vibrant cyberpunk aesthetics, we craft deep visual stories.</p>
+                    <p>Our focus is bringing flawless composition into the void through high-impact social identities, posters, thumbnails, and custom digital imagery.</p>
+                </div>
+                <div class="about-showcase">
+                    <h4>6</h4>
+                    <p style="color: var(--aqua); text-transform: uppercase; letter-spacing: 2px; font-weight: 700; font-size: 0.85rem; margin-top: 0.5rem;">Elite Members</p>
+                    <p style="margin-top: 1rem; font-size: 0.9rem; color: var(--text-muted);">A unified engine of individual creators managing multi-disciplinary digital arts.</p>
+                </div>
+            </div>
+        </section>
+
+        <footer>
+            <p>&copy; 2026 Lunar Studio. All rights reserved.</p>
+        </footer>
+    </div>
+
+    <section id="members-page" class="page-view">
+        <div class="inner-page-padding">
+            <div class="page-header">
+                <h2>The <span>Creative Collective</span></h2>
+                <p>High performance visual engineers equipped with industry level experience.</p>
+            </div>
+
+            <main class="team-grid">
+                <div class="member-card">
+                    <div class="member-info">
+                        <div class="member-meta">
+                            <div class="member-name">Maxxa GFX</div>
+                            <span class="member-role">Gaming Specialist</span>
+                        </div>
+                        <div class="member-stats-line">
+                            <div class="stat-box"><span>Experience</span><p>3+ Years</p></div>
+                            <div class="stat-box"><span>Core Work</span><p>Gaming</p></div>
+                        </div>
+                        <div class="member-bio">Expert in high-tier esports layouts, advanced vectors, and dynamic gaming brand assets. Engineering high-octane visual experiences tailored to competitive communities.</div>
+                    </div>
+                </div>
+
+                <div class="member-card">
+                    <div class="member-info">
+                        <div class="member-meta">
+                            <div class="member-name">Nitin GFX</div>
+                            <span class="member-role">Thumbnail Master</span>
+                        </div>
+                        <div class="member-stats-line">
+                            <div class="stat-box"><span>Experience</span><p>2+ Years</p></div>
+                            <div class="stat-box"><span>Core Work</span><p>Gaming Thumbnail</p></div>
+                        </div>
+                        <div class="member-bio">Specialized in heavy atmospheric composition and tactical lighting environments for video click optimization. Transforming complex in-game captures into viral creative canvases.</div>
+                    </div>
+                </div>
+
+                <div class="member-card">
+                    <div class="member-info">
+                        <div class="member-meta">
+                            <div class="member-name">Soumojit Designs</div>
+                            <span class="member-role">Thumbnail Designer</span>
+                        </div>
+                        <div class="member-stats-line">
+                            <div class="stat-box"><span>Experience</span><p>4+ Years</p></div>
+                            <div class="stat-box"><span>Core Work</span><p>IRL & Gaming</p></div>
+                        </div>
+                        <div class="member-bio">Versatile visual craftsman combining high-vibrancy gaming elements with clean, realistic IRL framing layout structures to design strategic high-click-rate canvas assets.</div>
+                    </div>
+                </div>
+
+                <div class="member-card">
+                    <div class="member-info">
+                        <div class="member-meta">
+                            <div class="member-name">Elish is Live</div>
+                            <span class="member-role">IRL Specialist</span>
+                        </div>
+                        <div class="member-stats-line">
+                            <div class="stat-box"><span>Experience</span><p>4+ Years</p></div>
+                            <div class="stat-box"><span>Core Work</span><p>IRL Thumbnail</p></div>
+                        </div>
+                        <div class="member-bio">Premium asset creator specialized in human-centric real life framing and advanced lighting. Merging color theory with depth manipulation to maximize audience click behaviors.</div>
+                    </div>
+                </div>
+            </main>
+        </div>
+        <footer>
+            <p>&copy; 2026 Lunar Studio. All rights reserved.</p>
+        </footer>
+    </section>
+
+    <section id="leads-page" class="page-view">
+        <div class="inner-page-padding">
+            <div class="page-header">
+                <h2>Studio <span>Core Leadership</span></h2>
+                <p>The strategic framework and operational minds driving Lunar Studio forward.</p>
+            </div>
+
+            <main class="team-grid">
+                <div class="member-card">
+                    <img class="member-img-banner" src="manas_avatar.png" id="manas-avatar" alt="Manas GFX Portfolio">
+                    <div class="member-info">
+                        <div class="member-meta">
+                            <div class="member-name">Manas GFX</div>
+                            <span class="member-role">Founder</span>
+                        </div>
+                        <div class="member-stats-line">
+                            <div class="stat-box"><span>Experience</span><p>5+ Years</p></div>
+                            <div class="stat-box"><span>Core Work</span><p>All Rounder</p></div>
+                        </div>
+                        <div class="member-bio">Visionary founder managing global pipeline direction, top-tier branding blueprints, and scaling multimedia initiatives with a diverse artistic overview.</div>
+                    </div>
+                </div>
+
+                <div class="member-card">
+                    <img class="member-img-banner" src="spirit_avatar.png" id="spirit-avatar" alt="Spirit GFX Portfolio">
+                    <div class="member-info">
+                        <div class="member-meta">
+                            <div class="member-name">Spirit GFX</div>
+                            <span class="member-role">Manager</span>
+                        </div>
+                        <div class="member-stats-line">
+                            <div class="stat-box"><span>Experience</span><p>3+ Years</p></div>
+                            <div class="stat-box"><span>Core Work</span><p>All Rounder</p></div>
+                        </div>
+                        <div class="member-bio">Operational anchor coordinating client assets, design workflows, and team synchronizations, while sustaining premium output parameters across all channels.</div>
+                    </div>
+                </div>
+            </main>
+        </div>
+        <footer>
+            <p>&copy; 2026 Lunar Studio. All rights reserved.</p>
+        </footer>
+    </section>
+
+    <section id="work-page" class="page-view">
+        <div class="inner-page-padding">
+            <div class="page-header">
+                <h2>Our <span>Featured Work</span></h2>
+                <p>Click on any folder to view our digital design collections.</p>
+            </div>
+
+            <div class="folder-grid">
+                <div class="folder-card" id="folder-thumb">
+                    <div class="folder-header-layout" onclick="toggleFolder('folder-thumb')">
+                        <div class="folder-meta-left">
+                            <div class="folder-icon">&#128193;</div>
+                            <div class="folder-info">
+                                <h3>1. Thumbnail Design</h3>
+                                <p>High-converting media assets designed to capture immediate target audience attention.</p>
+                            </div>
+                        </div>
+                        <div class="folder-toggle-indicator">&#9662;</div>
+                    </div>
+                    <div class="folder-content-wrapper">
+                        <div class="folder-content-inner">
+                            <div class="folder-images-grid">
+                                <div class="image-space" onclick="triggerPreview('Thumbnail Asset 1', 'thumbnail1.jpg')"><img src="thumbnail1.jpg" alt="Thumbnail 1" onerror="this.style.display='none'; this.parentNode.innerText='Image 1'"></div>
+                                <div class="image-space" onclick="triggerPreview('Thumbnail Asset 2', 'thumbnail2.jpg')"><img src="thumbnail2.jpg" alt="Thumbnail 2" onerror="this.style.display='none'; this.parentNode.innerText='Image 2'"></div>
+                                <div class="image-space" onclick="triggerPreview('Thumbnail Asset 3', 'thumbnail3.jpg')"><img src="thumbnail3.jpg" alt="Thumbnail 3" onerror="this.style.display='none'; this.parentNode.innerText='Image 3'"></div>
+                                <div class="image-space" onclick="triggerPreview('Thumbnail Asset 4', 'thumbnail4.jpg')"><img src="thumbnail4.jpg" alt="Thumbnail 4" onerror="this.style.display='none'; this.parentNode.innerText='Image 4'"></div>
+                                <div class="image-space" onclick="triggerPreview('Thumbnail Asset 5', 'thumbnail5.jpg')"><img src="thumbnail5.jpg" alt="Thumbnail 5" onerror="this.style.display='none'; this.parentNode.innerText='Image 5'"></div>
+                                <div class="image-space" onclick="triggerPreview('Thumbnail Asset 6', 'thumbnail6.jpg')"><img src="thumbnail6.jpg" alt="Thumbnail 6" onerror="this.style.display='none'; this.parentNode.innerText='Image 6'"></div>
+                                <div class="image-space" onclick="triggerPreview('Thumbnail Asset 7', 'thumbnail7.jpg')"><img src="thumbnail7.jpg" alt="Thumbnail 7" onerror="this.style.display='none'; this.parentNode.innerText='Image 7'"></div>
+                                <div class="image-space" onclick="triggerPreview('Thumbnail Asset 8', 'thumbnail8.jpg')"><img src="thumbnail8.jpg" alt="Thumbnail 8" onerror="this.style.display='none'; this.parentNode.innerText='Image 8'"></div>
+                                <div class="image-space" onclick="triggerPreview('Thumbnail Asset 9', 'thumbnail9.jpg')"><img src="thumbnail9.jpg" alt="Thumbnail 9" onerror="this.style.display='none'; this.parentNode.innerText='Image 9'"></div>
+                                <div class="image-space" onclick="triggerPreview('Thumbnail Asset 10', 'thumbnail10.jpg')"><img src="thumbnail10.jpg" alt="Thumbnail 10" onerror="this.style.display='none'; this.parentNode.innerText='Image 10'"></div>
+                                <div class="image-space" onclick="triggerPreview('Thumbnail Asset 11', 'thumbnail11.jpg')"><img src="thumbnail11.jpg" alt="Thumbnail 11" onerror="this.style.display='none'; this.parentNode.innerText='Image 11'"></div>
+                                <div class="image-space" onclick="triggerPreview('Thumbnail Asset 12', 'thumbnail12.jpg')"><img src="thumbnail12.jpg" alt="Thumbnail 12" onerror="this.style.display='none'; this.parentNode.innerText='Image 12'"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="folder-card" id="folder-logo">
+                    <div class="folder-header-layout" onclick="toggleFolder('folder-logo')">
+                        <div class="folder-meta-left">
+                            <div class="folder-icon">&#128193;</div>
+                            <div class="folder-info">
+                                <h3>2. Logofolio</h3>
+                                <p>Premium identity marks, team crests, and dynamic vector branding maps.</p>
+                            </div>
+                        </div>
+                        <div class="folder-toggle-indicator">&#9662;</div>
+                    </div>
+                    <div class="folder-content-wrapper">
+                        <div class="folder-content-inner">
+                            <div class="folder-images-grid">
+                                <div class="image-space" onclick="triggerPreview('Logo Asset 1', 'logo1.jpg')"><img src="logo1.jpg" alt="Logo 1" onerror="this.style.display='none'; this.parentNode.innerText='Image 1'"></div>
+                                <div class="image-space" onclick="triggerPreview('Logo Asset 2', 'logo2.jpg')"><img src="logo2.jpg" alt="Logo 2" onerror="this.style.display='none'; this.parentNode.innerText='Image 2'"></div>
+                                <div class="image-space" onclick="triggerPreview('Logo Asset 3', 'logo3.jpg')"><img src="logo3.jpg" alt="Logo 3" onerror="this.style.display='none'; this.parentNode.innerText='Image 3'"></div>
+                                <div class="image-space" onclick="triggerPreview('Logo Asset 4', 'logo4.jpg')"><img src="logo4.jpg" alt="Logo 4" onerror="this.style.display='none'; this.parentNode.innerText='Image 4'"></div>
+                                <div class="image-space" onclick="triggerPreview('Logo Asset 5', 'logo5.jpg')"><img src="logo5.jpg" alt="Logo 5" onerror="this.style.display='none'; this.parentNode.innerText='Image 5'"></div>
+                                <div class="image-space" onclick="triggerPreview('Logo Asset 6', 'logo6.jpg')"><img src="logo6.jpg" alt="Logo 6" onerror="this.style.display='none'; this.parentNode.innerText='Image 6'"></div>
+                                <div class="image-space" onclick="triggerPreview('Logo Asset 7', 'logo7.jpg')"><img src="logo7.jpg" alt="Logo 7" onerror="this.style.display='none'; this.parentNode.innerText='Image 7'"></div>
+                                <div class="image-space" onclick="triggerPreview('Logo Asset 8', 'logo8.jpg')"><img src="logo8.jpg" alt="Logo 8" onerror="this.style.display='none'; this.parentNode.innerText='Image 8'"></div>
+                                <div class="image-space" onclick="triggerPreview('Logo Asset 9', 'logo9.jpg')"><img src="logo9.jpg" alt="Logo 9" onerror="this.style.display='none'; this.parentNode.innerText='Image 9'"></div>
+                                <div class="image-space" onclick="triggerPreview('Logo Asset 10', 'logo10.jpg')"><img src="logo10.jpg" alt="Logo 10" onerror="this.style.display='none'; this.parentNode.innerText='Image 10'"></div>
+                                <div class="image-space" onclick="triggerPreview('Logo Asset 11', 'logo11.jpg')"><img src="logo11.jpg" alt="Logo 11" onerror="this.style.display='none'; this.parentNode.innerText='Image 11'"></div>
+                                <div class="image-space" onclick="triggerPreview('Logo Asset 12', 'logo12.jpg')"><img src="logo12.jpg" alt="Logo 12" onerror="this.style.display='none'; this.parentNode.innerText='Image 12'"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="folder-card" id="folder-poster">
+                    <div class="folder-header-layout" onclick="toggleFolder('folder-poster')">
+                        <div class="folder-meta-left">
+                            <div class="folder-icon">&#128193;</div>
+                            <div class="folder-info">
+                                <h3>4. Poster Art</h3>
+                                <p>Dense atmospheric event posters and dynamic custom promotional layout sheets.</p>
+                            </div>
+                        </div>
+                        <div class="folder-toggle-indicator">&#9662;</div>
+                    </div>
+                    <div class="folder-content-wrapper">
+                        <div class="folder-content-inner">
+                            <div class="folder-images-grid">
+                                <div class="image-space" onclick="triggerPreview('Poster Asset 1', 'poster1.jpg')"><img src="poster1.jpg" alt="Poster 1" onerror="this.style.display='none'; this.parentNode.innerText='Image 1'"></div>
+                                <div class="image-space" onclick="triggerPreview('Poster Asset 2', 'poster2.jpg')"><img src="poster2.jpg" alt="Poster 2" onerror="this.style.display='none'; this.parentNode.innerText='Image 2'"></div>
+                                <div class="image-space" onclick="triggerPreview('Poster Asset 3', 'poster3.jpg')"><img src="poster3.jpg" alt="Poster 3" onerror="this.style.display='none'; this.parentNode.innerText='Image 3'"></div>
+                                <div class="image-space" onclick="triggerPreview('Poster Asset 4', 'poster4.jpg')"><img src="poster4.jpg" alt="Poster 4" onerror="this.style.display='none'; this.parentNode.innerText='Image 4'"></div>
+                                <div class="image-space" onclick="triggerPreview('Poster Asset 5', 'poster5.jpg')"><img src="poster5.jpg" alt="Poster 5" onerror="this.style.display='none'; this.parentNode.innerText='Image 5'"></div>
+                                <div class="image-space" onclick="triggerPreview('Poster Asset 6', 'poster6.jpg')"><img src="poster6.jpg" alt="Poster 6" onerror="this.style.display='none'; this.parentNode.innerText='Image 6'"></div>
+                                <div class="image-space" onclick="triggerPreview('Poster Asset 7', 'poster7.jpg')"><img src="poster7.jpg" alt="Poster 7" onerror="this.style.display='none'; this.parentNode.innerText='Image 7'"></div>
+                                <div class="image-space" onclick="triggerPreview('Poster Asset 8', 'poster8.jpg')"><img src="poster8.jpg" alt="Poster 8" onerror="this.style.display='none'; this.parentNode.innerText='Image 8'"></div>
+                                <div class="image-space" onclick="triggerPreview('Poster Asset 9', 'poster9.jpg')"><img src="poster9.jpg" alt="Poster 9" onerror="this.style.display='none'; this.parentNode.innerText='Image 9'"></div>
+                                <div class="image-space" onclick="triggerPreview('Poster Asset 10', 'poster10.jpg')"><img src="poster10.jpg" alt="Poster 10" onerror="this.style.display='none'; this.parentNode.innerText='Image 10'"></div>
+                                <div class="image-space" onclick="triggerPreview('Poster Asset 11', 'poster11.jpg')"><img src="poster11.jpg" alt="Poster 11" onerror="this.style.display='none'; this.parentNode.innerText='Image 11'"></div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="reviews-section">
+                <div style="font-size: 1.25rem; text-transform: uppercase; letter-spacing: 2px; text-align: center; margin-bottom: 2rem; color: #fff;">Client <span>Reviews</span></div>
+                <div class="reviews-grid" id="reviews-container">
+                    <div class="review-card">
+                        <div class="review-user">
+                            <span class="review-name">Satvik</span>
+                            <span class="review-stars">★★★★★</span>
+                        </div>
+                        <p class="review-text">"Insane thumbnail quality. The tactical lighting manipulation dramatically boosted my click-through rates."</p>
+                    </div>
+                    <div class="review-card">
+                        <div class="review-user">
+                            <span class="review-name">Nitin FF</span>
+                            <span class="review-stars">★★★★★</span>
+                        </div>
+                        <p class="review-text">"The collective completely understood my gaming brand blueprint. Quick turnaround and flawless composition."</p>
+                    </div>
+                </div>
+
+                <div class="add-review-box">
+                    <h4>Leave a Review</h4>
+                    <form id="review-form" onsubmit="submitReview(event)">
+                        <div class="review-inputs">
+                            <input type="text" id="reviewer-name" placeholder="Your Name" required>
+                            <select id="reviewer-rating" required>
+                                <option value="★★★★★">5 Stars</option>
+                                <option value="★★★★☆">4 Stars</option>
+                                <option value="★★★☆☆">3 Stars</option>
+                                <option value="★★☆☆☆">2 Stars</option>
+                                <option value="★☆☆☆☆">1 Star</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <textarea id="reviewer-text" rows="3" placeholder="Share your experience working with Lunar Studio..." required></textarea>
+                        </div>
+                        <button type="submit" class="review-btn">Publish Review</button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="trust-section">
+                <div class="trust-title">Studio <span>Trust Ecosystem</span></div>
+                <div class="metrics-bar">
+                    <div class="metric-item">
+                        <h5>350+</h5>
+                        <p>Total Deliveries</p>
+                    </div>
+                    <div class="metric-item">
+                        <h5>150+</h5>
+                        <p>Happy Clients</p>
+                    </div>
+                    <div class="metric-item">
+                        <h5>500M+</h5>
+                        <p>Combined Views Generated</p>
+                    </div>
+                </div>
+                <div style="font-size: 0.85rem; text-transform: uppercase; letter-spacing: 2px; text-align: center; margin-bottom: 1.5rem; color: var(--text-muted);">Content Creators We Support</div>
+                <div class="channels-grid">
+                    <div class="channel-card"><h6>Satvik</h6><p>Thumbnail</p></div>
+                    <div class="channel-card"><h6>Sudip Sarkar</h6><p>Thumbnail</p></div>
+                    <div class="channel-card"><h6>Nitin FF</h6><p>Thumbnail</p></div>
+                    <div class="channel-card"><h6>Hakson pro</h6><p>Thumbnail</p></div>
+                </div>
+            </div>
+        </div>
+        <footer>
+            <p>&copy; 2026 Lunar Studio. All rights reserved.</p>
+        </footer>
+    </section>
+
+    <section id="contact-page" class="page-view">
+        <div class="inner-page-padding">
+            <div class="page-header">
+                <h2>Get In <span>Touch</span></h2>
+                <p>Collaborate with Lunar Studio on your next advanced creative venture.</p>
+            </div>
+
+            <div class="contact-layout-wrapper">
+                <div class="contact-form-container">
+                    <form class="contact-form" action="mailto:officailluanarstudio@gmail.com" method="POST" enctype="text/plain">
+                        <div class="form-group">
+                            <label>Name</label>
+                            <input type="text" name="Name" placeholder="Enter your name" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Email Address</label>
+                            <input type="email" name="Email" placeholder="officailluanarstudio@gmail.com" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Message</label>
+                            <textarea name="Project Concept" rows="5" placeholder="Describe your project concept or brief details..." required></textarea>
+                        </div>
+                        <button type="submit" class="submit-btn">Send Proposal</button>
+                    </form>
+                    
+                    <div class="direct-phone-box">
+                        <span>Direct Hotline:</span>
+                        <a href="tel:+919124148268">+91 91241 48268</a>
+                    </div>
+                </div>
+
+                <div class="contact-panels-container">
+                    <div class="discord-connect-panel">
+                        <div class="discord-icon-title">Discord HQ</div>
+                        <p>Join our server to interface directly with our digital engineers, manage revisions in real-time, and get direct community support.</p>
+                        <a href="https://discord.gg/9jCpw5kuYQ" target="_blank" class="discord-btn">Connect Server</a>
+                    </div>
+
+                    <div class="discord-connect-panel" style="border: 1px solid rgba(37, 211, 102, 0.3); padding: 2.5rem 2rem;">
+                        <div class="discord-icon-title" style="color: #25D366; font-size: 1.5rem;">Hire Us directly</div>
+                        <p style="margin-bottom: 1.2rem;">Ping us instantly to lock down your booking priority framework on WhatsApp.</p>
+                        <a href="https://wa.me/919124148268" target="_blank" class="whatsapp-btn">Hire Us via WhatsApp</a>
+                    </div>
+
+                    <div class="discord-connect-panel" style="border: 1px solid rgba(220, 39, 67, 0.3); padding: 2.5rem 2rem;">
+                        <div class="discord-icon-title" style="color: #dc2743; font-size: 1.5rem;">Instagram Feed</div>
+                        <p style="margin-bottom: 1.2rem;">Stay updated with our latest layout leaks, art concepts, and creative updates.</p>
+                        <a href="https://www.instagram.com/lunarstudiooo" target="_blank" class="insta-btn">Follow Instagram</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <footer>
+            <p>&copy; 2026 Lunar Studio. All rights reserved.</p>
+        </footer>
+    </section>
+
+    <div class="lightbox-modal" id="preview-lightbox" onclick="closePreview()">
+        <div class="lightbox-card" onclick="event.stopPropagation()">
+            <div class="lightbox-close" onclick="closePreview()">&times;</div>
+            <h3 id="modal-title-display" style="text-transform:uppercase; letter-spacing:1px; color:var(--aqua);">Work Preview</h3>
+            <div class="lightbox-preview-box">
+                <img id="lightbox-preview-img" src="" alt="Work Preview Image" onerror="this.style.display='none'">
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- 3D DRAGON WITH LONG SNAKE TAIL & DYNAMIC BACKGROUND ---
+        const totalSegments = 28;
+        const segments = [];
+        const mousePos = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
+        const container = document.getElementById('dragon-container');
+        let hueShift = 0;
+
+        for (let i = 0; i < totalSegments; i++) {
+            const seg = document.createElement('div');
+            seg.className = 'dragon-segment';
+            if (i === 0) seg.classList.add('dragon-head');
+            
+            const scale = i === 0 ? 1 : 1 - (i / totalSegments) * 0.75;
+            seg.style.transform = `scale(${scale})`;
+            seg.style.opacity = 1 - (i / totalSegments) * 0.65;
+            
+            container.appendChild(seg);
+            segments.push({
+                element: seg,
+                x: mousePos.x,
+                y: mousePos.y,
+                baseScale: scale
+            });
+        }
+
+        window.addEventListener('mousemove', function(e) {
+            mousePos.x = e.clientX;
+            mousePos.y = e.clientY;
+        });
+
+        function animateSnakeTrail() {
+            let targetX = mousePos.x;
+            let targetY = mousePos.y;
+            
+            hueShift = (hueShift + 1) % 360;
+
+            segments.forEach((seg, index) => {
+                const easeFactor = index === 0 ? 0.24 : 0.18;
+                
+                const dx = targetX - seg.x;
+                const dy = targetY - seg.y;
+                
+                seg.x += dx * easeFactor;
+                seg.y += dy * easeFactor;
+
+                const angle = Math.atan2(dy, dx) * (180 / Math.PI);
+                const localHue = (hueShift + (index * 8)) % 360;
+                
+                if (index !== 0) {
+                    seg.element.style.background = `linear-gradient(${angle}deg, hsl(${localHue}, 100%, 50%), hsl(${(localHue+40)%360}, 100%, 35%))`;
+                    seg.element.style.setProperty('--dragon-glow', `hsl(${localHue}, 100%, 50%)`);
+                }
+
+                const offset = index === 0 ? 13 : 9;
+                seg.element.style.transform = `translate3d(${seg.x - offset}px, ${seg.y - offset}px, 0) rotateZ(${angle}deg) scale(${seg.baseScale})`;
+
+                targetX = seg.x;
+                targetY = seg.y;
+            });
+
+            requestAnimationFrame(animateSnakeTrail);
+        }
+        requestAnimationFrame(animateSnakeTrail);
+
+        const fallbackSvg = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'><rect width='100%' height='100%' fill='%23111115'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif' font-size='10' fill='%2300e5ff'>MEDIA ERROR</text></svg>";
+        
+        ['manas-avatar','spirit-avatar'].forEach(id => {
+            if(document.getElementById(id)) {
+                document.getElementById(id).onerror = function() { this.src = fallbackSvg; };
+            }
+        });
+
+        // --- PAGE SWITCHER ENGINE ---
+        function switchPage(pageId, isHomeAction = false) {
+            document.querySelectorAll('.page-view').forEach(page => {
+                page.classList.remove('active-page');
+            });
+            document.querySelectorAll('.nav-links a').forEach(link => {
+                link.classList.remove('active');
+            });
+
+            document.getElementById(pageId).classList.add('active-page');
+            
+            if (pageId === 'home-about-view' && isHomeAction) {
+                document.getElementById('link-home').classList.add('active');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            } else if (pageId === 'members-page') {
+                document.getElementById('link-members').classList.add('active');
+                window.scrollTo(0, 0);
+            } else if (pageId === 'leads-page') {
+                document.getElementById('link-leads').classList.add('active');
+                window.scrollTo(0, 0);
+            } else if (pageId === 'work-page') {
+                document.getElementById('link-work').classList.add('active');
+                window.scrollTo(0, 0);
+            } else if (pageId === 'contact-page') {
+                document.getElementById('link-contact').classList.add('active');
+                window.scrollTo(0, 0);
+            }
+        }
+
+        // --- ABOUT SCROLL LINK CONTROLLER ---
+        function scrollToAbout() {
+            document.querySelectorAll('.page-view').forEach(page => page.classList.remove('active-page'));
+            document.getElementById('home-about-view').classList.add('active-page');
+            
+            document.querySelectorAll('.nav-links a').forEach(link => link.classList.remove('active'));
+            document.getElementById('link-about').classList.add('active');
+
+            const aboutSec = document.getElementById('about-section');
+            window.scrollTo({
+                top: aboutSec.offsetTop - 80,
+                behavior: 'smooth'
+            });
+        }
+
+        // --- ACCORDION TOGGLE CONTROLLER ---
+        function toggleFolder(folderId) {
+            const folderCard = document.getElementById(folderId);
+            const isOpen = folderCard.classList.contains('folder-open');
+            
+            if (!isOpen) {
+                folderCard.classList.add('folder-open');
+            } else {
+                folderCard.classList.remove('folder-open');
+            }
+        }
+
+        // --- PREVIEW SYSTEM TRIGGER MECHANICS ---
+        function triggerPreview(categoryTitle, imageSrc) {
+            document.getElementById('modal-title-display').innerText = categoryTitle;
+            
+            const previewImg = document.getElementById('lightbox-preview-img');
+            previewImg.src = imageSrc;
+            previewImg.style.display = 'block';
+
+            document.getElementById('preview-lightbox').classList.add('modal-active');
+        }
+
+        function closePreview() {
+            document.getElementById('preview-lightbox').classList.remove('modal-active');
+        }
+
+        // --- LIVE REVIEW SUBMISSION ENGINE ---
+        function submitReview(e) {
+            e.preventDefault();
+            const name = document.getElementById('reviewer-name').value;
+            const rating = document.getElementById('reviewer-rating').value;
+            const text = document.getElementById('reviewer-text').value;
+
+            const reviewContainer = document.getElementById('reviews-container');
+            
+            const reviewCard = document.createElement('div');
+            reviewCard.className = 'review-card';
+            reviewCard.innerHTML = `
+                <div class="review-user">
+                    <span class="review-name">${name}</span>
+                    <span class="review-stars">${rating}</span>
+                </div>
+                <p class="review-text">"${text}"</p>
+            `;
+            
+            reviewContainer.appendChild(reviewCard);
+            document.getElementById('review-form').reset();
+        }
+    </script>
+</body>
+</html>
